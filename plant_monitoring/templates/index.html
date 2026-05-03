@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>植物生长监控系统</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sensor-card {
+            background: #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .sensor-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .control-button {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-on {
+            background: #27ae60;
+            color: white;
+        }
+        .btn-off {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-on:hover { background: #219653; }
+        .btn-off:hover { background: #c0392b; }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .auto-mode {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 植物生长监控系统</h1>
+        
+        <div id="status" class="status status-disconnected">正在连接...</div>
+        
+        <div class="sensor-card">
+            <h3>🌡️ 温度</h3>
+            <div class="sensor-value" id="temperature">-- °C</div>
+        </div>
+        
+        <div class="sensor-card">
+            <h3>💧 湿度</h3>
+            <div class="sensor-value" id="humidity">-- %</div>
+        </div>
+        
+        <div class="sensor-card">
+            <h3>☀️ 光照</h3>
+            <div class="sensor-value" id="light">-- %</div>
+        </div>
+        
+        <div class="sensor-card">
+            <h3>💨 空气质量</h3>
+            <div class="sensor-value" id="air">-- %</div>
+        </div>
+        
+        <div class="auto-mode">
+            <h3>自动控制模式</h3>
+            <label class="switch">
+                <input type="checkbox" id="autoSwitch" checked>
+                <span class="slider"></span>
+            </label>
+            <span id="autoStatus">已开启</span>
+        </div>
+        
+        <h3>手动控制</h3>
+        <div class="control-panel">
+            <button class="control-button btn-on" onclick="controlDevice('relay1', 1)">💧 浇水 ON</button>
+            <button class="control-button btn-off" onclick="controlDevice('relay1', 0)">💧 浇水 OFF</button>
+            
+            <button class="control-button btn-on" onclick="controlDevice('relay2', 1)">🌡️ 加温 ON</button>
+            <button class="control-button btn-off" onclick="controlDevice('relay2', 0)">🌡️ 加温 OFF</button>
+            
+            <button class="control-button btn-on" onclick="controlDevice('relay3', 1)">💡 补光 ON</button>
+            <button class="control-button btn-off" onclick="controlDevice('relay3', 0)">💡 补光 OFF</button>
+            
+            <button class="control-button btn-on" onclick="controlDevice('relay4', 1)">💨 通风 ON</button>
+            <button class="control-button btn-off" onclick="controlDevice('relay4', 0)">💨 通风 OFF</button>
+            
+            <button class="control-button btn-on" onclick="controlDevice('buzzer', 1)">🔊 蜂鸣器 ON</button>
+            <button class="control-button btn-off" onclick="controlDevice('buzzer', 0)">🔊 蜂鸣器 OFF</button>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; color: #666;">
+            <p>系统状态: <span id="systemStatus">正常运行</span></p>
+            <p>最后更新: <span id="lastUpdate">--:--:--</span></p>
+        </div>
+    </div>
+
+    <script>
+        // 从ESP8266获取IP地址（需要你填入实际的IP）
+        const ESP_IP = "192.168.4.1"; // 或者从串口输出中获取
+        let isConnected = false;
+        let updateInterval;
+        
+        // 更新状态显示
+        function updateStatus() {
+            const statusDiv = document.getElementById('status');
+            if (isConnected) {
+                statusDiv.className = "status status-connected";
+                statusDiv.textContent = "✅ 已连接到设备";
+            } else {
+                statusDiv.className = "status status-disconnected";
+                statusDiv.textContent = "❌ 连接失败，请检查设备IP";
+            }
+        }
+        
+        // 获取传感器数据
+        function fetchSensorData() {
+            // 这里应该发送HTTP请求到ESP8266
+            // 由于安全限制，实际部署时需要搭建服务器
+            
+            // 模拟数据更新
+            document.getElementById('lastUpdate').textContent = 
+                new Date().toLocaleTimeString();
+        }
+        
+        // 控制设备
+        function controlDevice(device, state) {
+            const url = `http://${ESP_IP}/${device}=${state}`;
+            console.log(`控制: ${device} = ${state}`);
+            
+            // 发送控制命令
+            fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        console.log('控制成功');
+                        fetchSensorData(); // 更新数据
+                    }
+                })
+                .catch(error => {
+                    console.error('控制失败:', error);
+                    isConnected = false;
+                    updateStatus();
+                });
+        }
+        
+        // 自动模式切换
+        document.getElementById('autoSwitch').addEventListener('change', function(e) {
+            const status = document.getElementById('autoStatus');
+            if (e.target.checked) {
+                status.textContent = "已开启";
+                controlDevice('auto', 1);
+            } else {
+                status.textContent = "已关闭";
+                controlDevice('auto', 0);
+            }
+        });
+        
+        // 模拟传感器数据（用于演示）
+        function simulateSensorData() {
+            // 温度：20-30°C
+            document.getElementById('temperature').textContent = 
+                (22 + Math.random() * 6).toFixed(1) + " °C";
+            
+            // 湿度：50-80%
+            document.getElementById('humidity').textContent = 
+                (60 + Math.random() * 20).toFixed(1) + " %";
+            
+            // 光照：40-80%
+            document.getElementById('light').textContent = 
+                (60 + Math.random() * 20).toFixed(1) + " %";
+            
+            // 空气质量：30-90%
+            document.getElementById('air').textContent = 
+                (60 + Math.random() * 30).toFixed(1) + " %";
+        }
+        
+        // 初始化
+        function init() {
+            updateStatus();
+            simulateSensorData();
+            
+            // 每3秒更新一次数据
+            updateInterval = setInterval(simulateSensorData, 3000);
+            
+            // 尝试连接设备
+            setTimeout(() => {
+                isConnected = true;
+                updateStatus();
+            }, 2000);
+        }
+        
+        // 页面加载时初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

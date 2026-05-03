@@ -1,0 +1,37 @@
+{
+  "features": [
+    "Sunlight_Hours",
+    "Temperature",
+    "Humidity",
+    "Soil_Type_encoded",
+    "Water_Frequency_encoded",
+    "Fertilizer_Type_encoded",
+    "environment_score"
+  ],
+  "input_dim": 7,
+  "label_encoders": {
+    "Soil_Type": [
+      "clay",
+      "loam",
+      "sandy"
+    ],
+    "Water_Frequency": [
+      "bi-weekly",
+      "daily",
+      "weekly"
+    ],
+    "Fertilizer_Type": [
+      "chemical",
+      "none",
+      "organic"
+    ]
+  },
+  "model_info": {
+    "hidden_layers": [
+      8,
+      4
+    ],
+    "activation": "relu",
+    "solver": "adam"
+  }
+}

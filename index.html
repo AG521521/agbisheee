@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植物生长智能监控系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .sensor-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .sensor-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4a5568;
+            margin: 10px 0;
+        }
+        
+        .sensor-unit {
+            font-size: 16px;
+            color: #718096;
+        }
+        
+        .sensor-name {
+            font-size: 14px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        .ai-prediction {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .ai-status {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .control-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .control-section {
+            margin-bottom: 25px;
+        }
+        
+        .control-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+        
+        .relay-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .relay-item {
+            text-align: center;
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .relay-item.active {
+            background: linear-gradient(135deg, #81e6d9 0%, #4fd1c5 100%);
+            border-color: #38b2ac;
+            color: white;
+        }
+        
+        .relay-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .toggle-btn {
+            width: 60px;
+            height: 34px;
+            background: #cbd5e0;
+            border-radius: 17px;
+            position: relative;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.active {
+            background: #38b2ac;
+        }
+        
+        .toggle-knob {
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.active .toggle-knob {
+            left: 29px;
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .info-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #718096;
+        }
+        
+        .connection-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            .sensors-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .relay-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 植物生长智能监控系统</h1>
+            <div class="subtitle">AI辅助控制 + 手动控制 | 实时监控 | 远程管理</div>
+        </div>
+        
+        <div class="status-card">
+            <div class="sensors-grid" id="sensorsGrid">
+                <!-- 传感器数据将通过JavaScript动态更新 -->
+            </div>
+            
+            <div class="ai-prediction" id="aiPrediction">
+                <div>🤖 AI生长预测</div>
+                <div class="ai-status" id="aiStatus">正在获取...</div>
+                <div id="aiConfidence">置信度: --%</div>
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <div class="control-section">
+                <h3>🎛️ 控制模式</h3>
+                <div class="mode-selector">
+                    <div class="mode-btn active" data-mode="auto" onclick="setControlMode('auto')">
+                        🤖 AI自动模式
+                    </div>
+                    <div class="mode-btn" data-mode="manual" onclick="setControlMode('manual')">
+                        👋 手动控制模式
+                    </div>
+                    <div class="mode-btn" data-mode="hybrid" onclick="setControlMode('hybrid')">
+                        🔄 混合模式
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>⚡ 继电器控制</h3>
+                <div class="relay-grid" id="relayGrid">
+                    <!-- 继电器控制将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <h3>🔊 蜂鸣器控制</h3>
+                <div class="relay-item" onclick="toggleBuzzer()">
+                    <div class="relay-name">蜂鸣器</div>
+                    <div class="toggle-btn" id="buzzerToggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="refreshData()">
+                    🔄 刷新数据
+                </button>
+                <button class="btn btn-secondary" onclick="toggleAI()">
+                    ⚙️ AI开关
+                </button>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>📊 系统信息</h3>
+            <p>• AI自动模式：系统根据AI预测自动控制设备</p>
+            <p>• 手动模式：用户完全控制，AI建议仅供参考</p>
+            <p>• 混合模式：AI控制主要设备，用户可干预次要设备</p>
+            <p>• 数据每5秒自动更新，也可手动刷新</p>
+        </div>
+        
+        <div class="connection-status" id="connectionStatus">
+            🔗 正在连接...
+        </div>
+    </div>
+
+    <script>
+        // 配置
+        const ESP_IP = "10.87.12.57"; // 根据实际ESP8266 IP修改
+        const UPDATE_INTERVAL = 5000; // 5秒更新一次
+        
+        // 状态变量
+        let currentMode = 'auto';
+        let isAIEnabled = true;
+        let lastUpdateTime = 0;
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initSensorsGrid();
+            initRelayGrid();
+            updateData();
+            setInterval(updateData, UPDATE_INTERVAL);
+        });
+        
+        // 初始化传感器网格
+        function initSensorsGrid() {
+            const sensors = [
+                { id: 'temp', name: '温度', unit: '°C', icon: '🌡️' },
+                { id: 'humi', name: '湿度', unit: '%', icon: '💧' },
+                { id: 'light', name: '光照', unit: '%', icon: '☀️' },
+                { id: 'air', name: '空气质量', unit: '%', icon: '🌬️' }
+            ];
+            
+            const grid = document.getElementById('sensorsGrid');
+            sensors.forEach(sensor => {
+                const item = document.createElement('div');
+                item.className = 'sensor-item';
+                item.innerHTML = `
+                    <div class="sensor-name">${sensor.icon} ${sensor.name}</div>
+                    <div class="sensor-value" id="${sensor.id}Value">--</div>
+                    <div class="sensor-unit">${sensor.unit}</div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+        
+        // 初始化继电器网格
+        function initRelayGrid() {
+            const relays = [
+                { id: 1, name: '浇水系统', icon: '💦' },
+                { id: 2, name: '温控系统', icon: '🔥' },
+                { id: 3, name: '补光灯', icon: '💡' },
+                { id: 4, name: '通风系统', icon: '🌀' }
+            ];
+            
+            const grid = document.getElementById('relayGrid');
+            relays.forEach(relay => {
+                const item = document.createElement('div');
+                item.className = 'relay-item';
+                item.setAttribute('data-relay', relay.id);
+                item.innerHTML = `
+                    <div class="relay-name">${relay.icon} ${relay.name}</div>
+                    <div class="toggle-btn" id="relay${relay.id}Toggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                `;
+                item.onclick = () => toggleRelay(relay.id);
+                grid.appendChild(item);
+            });
+        }
+        
+        // 更新数据
+        async function updateData() {
+            try {
+                const response = await fetch(`http://${ESP_IP}/status`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                updateUI(data);
+                updateConnectionStatus(true);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                updateConnectionStatus(false);
+            }
+        }
+        
+        // 更新UI
+        function updateUI(data) {
+            // 更新传感器数据
+            document.getElementById('tempValue').textContent = data.temperature;
+            document.getElementById('humiValue').textContent = data.humidity;
+            document.getElementById('lightValue').textContent = data.light;
+            document.getElementById('airValue').textContent = data.air;
+            
+            // 更新AI预测
+            const aiStatus = document.getElementById('aiStatus');
+            const aiConfidence = document.getElementById('aiConfidence');
+            const aiPrediction = document.getElementById('aiPrediction');
+            
+            if (data.ai_prediction === 1) {
+                aiStatus.textContent = '✅ 生长良好';
+                aiPrediction.style.background = 'linear-gradient(135deg, #81e6d9 0%, #4fd1c5 100%)';
+            } else {
+                aiStatus.textContent = '⚠️ 生长不良';
+                aiPrediction.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+            }
+            
+            aiConfidence.textContent = `置信度: ${(data.ai_confidence * 100).toFixed(1)}%`;
+            
+            // 更新继电器状态
+            for (let i = 1; i <= 4; i++) {
+                const relayState = data[`relay${i}`];
+                const toggleBtn = document.getElementById(`relay${i}Toggle`);
+                const relayItem = document.querySelector(`[data-relay="${i}"]`);
+                
+                if (relayState === 1) {
+                    toggleBtn.classList.add('active');
+                    relayItem.classList.add('active');
+                } else {
+                    toggleBtn.classList.remove('active');
+                    relayItem.classList.remove('active');
+                }
+            }
+            
+            // 更新蜂鸣器状态
+            const buzzerToggle = document.getElementById('buzzerToggle');
+            if (data.buzzer === 1) {
+                buzzerToggle.classList.add('active');
+            } else {
+                buzzerToggle.classList.remove('active');
+            }
+            
+            // 更新控制模式
+            currentMode = ['auto', 'manual', 'hybrid'][data.control_mode];
+            updateModeButtons();
+            
+            // 更新AI开关状态
+            isAIEnabled = data.ai_enabled === 1;
+            
+            // 更新最后更新时间
+            lastUpdateTime = Date.now();
+            document.getElementById('connectionStatus').textContent = 
+                `✅ 已连接 | 最后更新: ${new Date().toLocaleTimeString()}`;
+        }
+        
+        // 更新连接状态
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.style.background = 'rgba(56, 178, 172, 0.9)';
+            } else {
+                status.style.background = 'rgba(245, 101, 101, 0.9)';
+                status.textContent = '❌ 连接断开 | 正在重试...';
+            }
+        }
+        
+        // 切换继电器
+        async function toggleRelay(relayId) {
+            const currentState = document.getElementById(`relay${relayId}Toggle`).classList.contains('active');
+            const newState = currentState ? 0 : 1;
+            
+            try {
+                await fetch(`http://${ESP_IP}/relay${relayId}=${newState}&mode=manual`);
+                console.log(`Relay ${relayId} set to ${newState}`);
+                updateData(); // 刷新数据
+            } catch (error) {
+                console.error('Error toggling relay:', error);
+            }
+        }
+        
+        // 切换蜂鸣器
+        async function toggleBuzzer() {
+            const currentState = document.getElementById('buzzerToggle').classList.contains('active');
+            const newState = currentState ? 0 : 1;
+            
+            try {
+                await fetch(`http://${ESP_IP}/buzzer=${newState}`);
+                console.log(`Buzzer set to ${newState}`);
+                updateData();
+            } catch (error) {
+                console.error('Error toggling buzzer:', error);
+            }
+        }
+        
+        // 设置控制模式
+        async function setControlMode(mode) {
+            currentMode = mode;
+            updateModeButtons();
+            
+            try {
+                await fetch(`http://${ESP_IP}/mode=${mode}`);
+                console.log(`Control mode set to ${mode}`);
+                updateData();
+            } catch (error) {
+                console.error('Error setting control mode:', error);
+            }
+        }
+        
+        // 更新模式按钮状态
+        function updateModeButtons() {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                if (btn.getAttribute('data-mode') === currentMode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+        
+        // 切换AI开关
+        async function toggleAI() {
+            isAIEnabled = !isAIEnabled;
+            const action = isAIEnabled ? 'enable' : 'disable';
+            
+            try {
+                await fetch(`http://${ESP_IP}/ai=${action}`);
+                console.log(`AI ${action}d`);
+                updateData();
+            } catch (error) {
+                console.error('Error toggling AI:', error);
+            }
+        }
+        
+        // 刷新数据
+        function refreshData() {
+            updateData();
+            // 显示刷新动画
+            const status = document.getElementById('connectionStatus');
+            status.textContent = '🔄 正在刷新数据...';
+            setTimeout(() => {
+                if (Date.now() - lastUpdateTime < 1000) {
+                    status.textContent = '✅ 数据已更新';
+                }
+            }, 1000);
+        }
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'r':
+                case 'R':
+                    if (event.ctrlKey) refreshData();
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                    toggleRelay(parseInt(event.key));
+                    break;
+                case 'm':
+                case 'M':
+                    setControlMode('manual');
+                    break;
+                case 'a':
+                case 'A':
+                    setControlMode('auto');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

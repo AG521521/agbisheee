@@ -1,0 +1,9 @@
+{
+  "Sunlight_Hours": 0.13583528662654576,
+  "Temperature": 0.1551575694828926,
+  "Humidity": 0.14342942161250297,
+  "Soil_Type_encoded": 0.14817417848259243,
+  "Water_Frequency_encoded": 0.13757982003051844,
+  "Fertilizer_Type_encoded": 0.13749693194446058,
+  "environment_score": 0.14232679182048735
+}

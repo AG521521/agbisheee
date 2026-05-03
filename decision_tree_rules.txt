@@ -1,0 +1,43 @@
+|--- sunlight_temp <= -0.53
+|   |--- environment_score <= -1.25
+|   |   |--- class: 1
+|   |--- environment_score >  -1.25
+|   |   |--- environment_score <= -0.86
+|   |   |   |--- class: 0
+|   |   |--- environment_score >  -0.86
+|   |   |   |--- sunlight_temp <= -1.38
+|   |   |   |   |--- class: 0
+|   |   |   |--- sunlight_temp >  -1.38
+|   |   |   |   |--- Humidity <= -1.17
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- Humidity >  -1.17
+|   |   |   |   |   |--- class: 1
+|--- sunlight_temp >  -0.53
+|   |--- Fertilizer_Type_encoded <= 0.70
+|   |   |--- environment_score <= 0.87
+|   |   |   |--- environment_score <= 0.28
+|   |   |   |   |--- Temperature <= -0.74
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- Temperature >  -0.74
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- environment_score >  0.28
+|   |   |   |   |--- temp_humidity <= -0.54
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- temp_humidity >  -0.54
+|   |   |   |   |   |--- class: 1
+|   |   |--- environment_score >  0.87
+|   |   |   |--- Water_Frequency_encoded <= -0.59
+|   |   |   |   |--- class: 0
+|   |   |   |--- Water_Frequency_encoded >  -0.59
+|   |   |   |   |--- class: 0
+|   |--- Fertilizer_Type_encoded >  0.70
+|   |   |--- temp_score <= -1.19
+|   |   |   |--- class: 0
+|   |   |--- temp_score >  -1.19
+|   |   |   |--- Humidity <= 0.87
+|   |   |   |   |--- Sunlight_Hours <= 1.83
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- Sunlight_Hours >  1.83
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- Humidity >  0.87
+|   |   |   |   |--- class: 0

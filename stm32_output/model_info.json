@@ -1,0 +1,11 @@
+{
+  "input_size": 7,
+  "output_size": 2,
+  "hidden_sizes": [
+    32,
+    16
+  ],
+  "total_params": 104,
+  "memory_kb": 0.40625,
+  "accuracy": 0.48717948717948717
+}
