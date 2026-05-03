@@ -47,7 +47,6 @@
 4. 页面每2秒自动刷新，可查看传感器数据、AI预测结果、切换控制模式
 
 ## 📁 项目结构
-```
 ├── stm32_project/         # STM32 CubeIDE工程
 │   ├── Core/              # 主程序、传感器驱动、AI模型代码
 │   └── plant_growth_model_prob.onnx  # 神经网络模型
@@ -55,7 +54,6 @@
 │   └── main.ino           # Web服务器、数据处理、前端页面
 ├── model/                 # 模型训练（Python/TensorFlow）
 └── docs/                  # 论文相关文档
-```
 
 ## 📝 许可证
 本项目采用 MIT 许可证
